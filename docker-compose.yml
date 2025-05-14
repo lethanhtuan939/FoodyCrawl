@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  foody-crawler:
+    build:
+      context: ./crawling
+      dockerfile: Dockerfile
+    container_name: foody-crawler
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./crawling/landing_zone:/app/landing_zone
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    restart: unless-stopped
