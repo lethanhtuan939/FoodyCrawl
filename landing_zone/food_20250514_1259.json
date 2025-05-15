@@ -1,0 +1,25 @@
+[
+    {
+        "id": 1,
+        "name": "Pho Bo",
+        "categories": [
+            "Vietnamese",
+            "Noodle"
+        ],
+        "cuisines": [
+            "Vietnamese"
+        ],
+        "address": "123 Le Loi St, TP. HCM",
+        "rating_avg": 4.5,
+        "rating_total_review": 200,
+        "is_open": true,
+        "city_id": 217,
+        "location": {
+            "id": 1,
+            "city_id": 217,
+            "CountryId": 86,
+            "Name": "TP. HCM",
+            "CountryName": "Vietnam"
+        }
+    }
+]

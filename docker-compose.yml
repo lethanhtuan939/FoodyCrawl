@@ -1,0 +1,36 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+  crawling:
+    build: ./crawling
+    volumes:
+      - ./landing_zone:/app/landing_zone
+    ports:
+      - "8001:8000"
+  ingestion:
+    build: ./ingestion
+    volumes:
+      - ./landing_zone:/app/landing_zone
+    depends_on:
+      - db
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: foody
+    volumes:
+      - ./backend/init_db:/docker-entrypoint-initdb.d
+      - ./database/data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
