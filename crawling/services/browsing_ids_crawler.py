@@ -1,12 +1,18 @@
 # services/browsing_ids_crawler.py
 import requests
+import logging
+import random
+import time
+
+# Create logger for this module
+logger = logging.getLogger(__name__)
 
 def crawl_browsing_ids(city_id=218, root_category=1000000) -> dict:
     """
-    Gọi API lấy danh sách delivery_ids theo city_id.
-    Trả về một dict gồm delivery_ids và city_id.
+    Call API to get list of delivery_ids by city_id.
+    Returns a dict containing delivery_ids and city_id.
     """
-
+    logger.info(f"Crawling browsing IDs for city_id: {city_id}, root_category: {root_category}")
     url = "https://gappapi.deliverynow.vn/api/delivery/get_browsing_ids"
 
     headers = {
@@ -30,14 +36,38 @@ def crawl_browsing_ids(city_id=218, root_category=1000000) -> dict:
         "root_category_ids": [root_category]
     }
 
-    response = requests.post(url, headers=headers, json=payload)
-    response.raise_for_status()
-    data = response.json()
+    try:
+        logger.debug(f"Sending request to {url} with payload.city_id: {payload['city_id']}")
+        
+        # Sleep randomly between 0.5 and 1.0 seconds before making the request
+        time_to_sleep = random.uniform(0.5, 1.0)
+        logger.debug(f"Sleeping for {time_to_sleep:.2f} seconds before request...")
+        time.sleep(time_to_sleep)
+        
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+        data = response.json()
+        logger.debug("Successfully received response from browsing_ids API")
 
-    delivery_ids = data.get("reply", {}).get("delivery_ids", [])
-    
-    return {
-        "city_id": city_id,
-        "delivery_ids": delivery_ids
-    }
+        delivery_ids = data.get("reply", {}).get("delivery_ids", [])
+        logger.info(f"Found {len(delivery_ids)} delivery IDs for city {city_id}")
+        
+        return {
+            "city_id": city_id,
+            "delivery_ids": delivery_ids
+        }
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error calling browsing_ids API: {str(e)}", exc_info=True)
+        return {
+            "city_id": city_id,
+            "delivery_ids": [],
+            "error": str(e)
+        }
+    except Exception as e:
+        logger.error(f"Unexpected error in crawl_browsing_ids: {str(e)}", exc_info=True)
+        return {
+            "city_id": city_id,
+            "delivery_ids": [],
+            "error": str(e)
+        }
     # return delivery_ids

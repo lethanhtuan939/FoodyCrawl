@@ -1,0 +1,14 @@
+[
+  {
+    "city_id": 217,
+    "country_id": 86,
+    "name": "TP. HCM",
+    "country_name": "Vietnam"
+  },
+  {
+    "city_id": 285,
+    "country_id": 76,
+    "name": "Bangkok",
+    "country_name": "Thailand"
+  }
+]

@@ -4,10 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 import logging
 from controllers.crawling_controller import router as crawling_router
 from controllers.scheduler_controller import start_scheduler, shutdown_scheduler
+from utils.logging_utils import setup_logging
 
 # Thiết lập logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = setup_logging(logging.INFO)
 
 # Tạo FastAPI app
 app = FastAPI(title="FoodyCrawl API")
@@ -27,10 +27,14 @@ app.include_router(crawling_router)
 # Khởi động scheduler khi app khởi chạy
 @app.on_event("startup")
 def on_startup():
+    logger.info("Starting FoodyCrawl application...")
     start_scheduler()
+    logger.info("Scheduler has been started")
 
 # Tắt scheduler khi app kết thúc
 @app.on_event("shutdown")
 def on_shutdown():
+    logger.info("Shutting down FoodyCrawl application...")
     shutdown_scheduler()
+    logger.info("Scheduler has been stopped")
     

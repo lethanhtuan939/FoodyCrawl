@@ -12,8 +12,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Tạo thư mục lưu data
+# Tạo thư mục lưu data và logs
 RUN mkdir -p /app/landing_zone && chmod -R 777 /app/landing_zone
+RUN mkdir -p /app/logs && chmod -R 777 /app/logs
 
 # Copy code vào container
 COPY . .

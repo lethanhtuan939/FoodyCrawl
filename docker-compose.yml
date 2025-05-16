@@ -9,7 +9,8 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./crawling/landing_zone:/app/landing_zone
+      - ./landing_zone:/app/landing_zone
+      - ./crawling/logs:/app/logs
     environment:
       - TZ=Asia/Ho_Chi_Minh
     restart: unless-stopped

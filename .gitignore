@@ -23,7 +23,3 @@ build/
 *.log
 *.sqlite3
 *.db
-
-# Local data files
-landing_zone/
-*.json

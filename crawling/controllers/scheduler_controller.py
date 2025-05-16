@@ -4,66 +4,83 @@ import logging
 from services.location_crawler import crawl_foody_locations
 from services.browsing_ids_crawler import crawl_browsing_ids
 from services.browsing_infos_crawler import crawl_browsing_infos_with_list
+from schemas.browsing_info_schema import BrowsingInfosRequest
 
-# Thiết lập logger
+# Setup logger for this module
 logger = logging.getLogger(__name__)
 
-# Khởi tạo scheduler
+# Initialize scheduler
 scheduler = BackgroundScheduler()
+
+# Constants
+MAX_DELIVERY_IDS_PER_CITY = 30  # Maximum number of delivery IDs to process per city
 
 def scheduled_full_crawl():
     """
-    Hàm thực hiện crawl đầy đủ được gọi bởi scheduler
+    Function to perform full crawl called by scheduler
     """
     try:
         logger.info("Starting scheduled full crawl...")
         
         # Crawl locations
         city_ids = crawl_foody_locations()
-        logger.info(f"Found {len(city_ids)} cities.")
+        logger.info(f"Found {len(city_ids)} cities")
 
         all_requests = []
 
-        # Crawl browsing IDs cho từng thành phố
+        # Crawl browsing IDs for each city
         for city_id in city_ids:
-            logger.info(f"Crawling browsing_ids for city_id = {city_id}...")
+            logger.info(f"Crawling browsing IDs for city_id: {city_id}")
             try:
-                browsing_requests = crawl_browsing_ids(city_id=city_id)
-                all_requests.extend(browsing_requests)
+                browsing_result = crawl_browsing_ids(city_id=city_id)
+                if "error" not in browsing_result:
+                    # Limit the number of delivery_ids to process
+                    delivery_ids_to_process = browsing_result["delivery_ids"][:MAX_DELIVERY_IDS_PER_CITY]
+                    logger.info(f"Processing {len(delivery_ids_to_process)} delivery IDs for city {city_id}")
+                    
+                    for delivery_id in delivery_ids_to_process:
+                        all_requests.append(BrowsingInfosRequest(
+                            delivery_ids=[delivery_id],
+                            city_id=city_id
+                        ))
+                else:
+                    logger.error(f"Error in browsing_ids result: {browsing_result.get('error')}")
             except Exception as e:
-                logger.error(f"Failed to crawl city {city_id}: {str(e)}")
+                logger.error(f"Failed to crawl city {city_id}: {str(e)}", exc_info=True)
                 continue
 
         logger.info(f"Total browsing requests to process: {len(all_requests)}")
 
-        # Crawl thông tin chi tiết
-        result = crawl_browsing_infos_with_list(all_requests)
-        
-        logger.info(f"Scheduled full crawl completed successfully: {result}")
+        # Crawl detailed information
+        if all_requests:
+            result = crawl_browsing_infos_with_list(all_requests)
+            logger.info(f"Scheduled full crawl completed successfully: {result.get('total_restaurants', 0)} restaurants found")
+        else:
+            logger.warning("No requests to process, skipping crawl_browsing_infos")
         
     except Exception as e:
-        logger.error(f"Error during scheduled full crawl: {str(e)}")
+        logger.error(f"Error during scheduled full crawl: {str(e)}", exc_info=True)
 
 def start_scheduler():
     """
-    Khởi động scheduler khi ứng dụng khởi chạy
+    Start scheduler when application starts
     """
-    # Cài đặt job chạy lúc 1 giờ sáng mỗi ngày (hoặc thời gian được cấu hình)
+    # Configure job to run at 1 AM every day (or configured time)
     scheduler.add_job(
         scheduled_full_crawl,
-        CronTrigger(hour=1, minute=0),  # Thiết lập thời gian chạy định kỳ
+        CronTrigger(hour=0, minute=49),  # Set scheduled time
         id="daily_full_crawl",
         name="Daily full crawl at 1 AM",
         replace_existing=True
     )
     
-    # Bắt đầu scheduler
+    # Start scheduler
     scheduler.start()
     logger.info("Scheduler started - Full crawl scheduled to run daily at 1:00 AM")
 
 def shutdown_scheduler():
     """
-    Tắt scheduler khi ứng dụng kết thúc
+    Shut down scheduler when application terminates
     """
     if scheduler.running:
         scheduler.shutdown()
