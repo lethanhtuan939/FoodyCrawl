@@ -1,0 +1,38 @@
+{
+  "locations": [
+    {
+      "city_id": 217,
+      "country_id": 86,
+      "name": "TP. HCM",
+      "country_name": "Vietnam"
+    },
+    {
+      "city_id": 286,
+      "country_id": 76,
+      "name": "Chon Buri",
+      "country_name": "Thailand"
+    }
+  ],
+  "foods": [
+    {
+      "name": "Bún Thịt Nướng Kiều Bảo - Tô Hiến Thành",
+      "categories": "Bistro",
+      "cuisines": "Vietnam, South",
+      "address": "339/12 Tô Hiến Thành, Quận 10, TP. HCM",
+      "rating_avg": 4.8,
+      "rating_total_review": 1000,
+      "is_open": true,
+      "city_id": 217
+    },
+    {
+      "name": "Italian Pizza - Khuất Duy Tiến",
+      "categories": "Bistro",
+      "cuisines": "International",
+      "address": "15 Khuất Duy Tiến, P. Thanh Xuân Bắc, Thanh Xuân, Hà Nội",
+      "rating_avg": 4.8,
+      "rating_total_review": 1000,
+      "is_open": true,
+      "city_id": 218
+    }
+  ]
+}
