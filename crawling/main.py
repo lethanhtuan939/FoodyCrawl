@@ -1,53 +1,38 @@
 from fastapi import FastAPI
-import json
-import os
-from datetime import datetime
+from fastapi.middleware.cors import CORSMiddleware
+import logging
+from controllers.crawling_controller import router as crawling_router
+from controllers.scheduler_controller import start_scheduler, shutdown_scheduler
+from utils.logging_utils import setup_logging
 
-app = FastAPI()
+# Thiết lập logging
+logger = setup_logging(logging.INFO)
 
-LANDING_ZONE = "/app/landing_zone"
-if not os.path.exists(LANDING_ZONE):
-    os.makedirs(LANDING_ZONE)
+# Tạo FastAPI app
+app = FastAPI(title="FoodyCrawl API")
 
-# Dữ liệu JSON mẫu
-SAMPLE_DATA = [
-    {
-        "id": 1,
-        "name": "Pho Bo",
-        "categories": ["Vietnamese", "Noodle"],
-        "cuisines": ["Vietnamese"],
-        "address": "123 Le Loi St, TP. HCM",
-        "rating_avg": 4.5,
-        "rating_total_review": 200,
-        "is_open": True,
-        "city_id": 217,
-        "location": {
-            "id": 1,
-            "city_id": 217,
-            "CountryId": 86,
-            "Name": "TP. HCM",
-            "CountryName": "Vietnam"
-        }
-    }
-]
+# Cấu hình CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.get("/crawl")
-async def crawl_data():
-    try:
-        # Tạo tên file dựa trên timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        file_name = f"food_{timestamp}.json"
-        file_path = os.path.join(LANDING_ZONE, file_name)
+# Đăng ký router
+app.include_router(crawling_router)
 
-        # Lưu dữ liệu vào file JSON
-        with open(file_path, "w") as f:
-            json.dump(SAMPLE_DATA, f, indent=4)
+# Khởi động scheduler khi app khởi chạy
+@app.on_event("startup")
+def on_startup():
+    logger.info("Starting FoodyCrawl application...")
+    start_scheduler()
+    logger.info("Scheduler has been started")
 
-        return {"message": f"Successfully created JSON file: {file_name}"}
-
-    except Exception as e:
-        return {"error": f"Failed to create JSON file: {str(e)}"}
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# Tắt scheduler khi app kết thúc
+@app.on_event("shutdown")
+def on_shutdown():
+    logger.info("Shutting down FoodyCrawl application...")
+    shutdown_scheduler()
+    logger.info("Scheduler has been stopped")
