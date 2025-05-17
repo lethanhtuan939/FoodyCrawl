@@ -1,16 +1,37 @@
-version: '3.8'
-
 services:
-  foody-crawler:
-    build:
-      context: ./crawling
-      dockerfile: Dockerfile
-    container_name: foody-crawler
+  backend:
+    build: ./backend
     ports:
       - "8000:8000"
+    depends_on:
+      - db
+  crawling:
+    build: ./crawling
     volumes:
       - ./landing_zone:/app/landing_zone
-      - ./crawling/logs:/app/logs
-    environment:
-      - TZ=Asia/Ho_Chi_Minh
+    ports:
+      - "8001:8000"
     restart: unless-stopped
+  ingestion:
+    build: ./ingestion
+    volumes:
+      - ./landing_zone:/app/landing_zone
+    depends_on:
+      - db
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: foody
+    volumes:
+      - ./backend/init_db:/docker-entrypoint-initdb.d
+      - ./database/data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"

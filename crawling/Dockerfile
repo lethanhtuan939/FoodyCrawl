@@ -10,7 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 # Cài đặt các dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 # Tạo thư mục lưu data và logs
 RUN mkdir -p /app/landing_zone && chmod -R 777 /app/landing_zone

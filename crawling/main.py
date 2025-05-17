@@ -1,4 +1,3 @@
-# main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
@@ -37,4 +36,3 @@ def on_shutdown():
     logger.info("Shutting down FoodyCrawl application...")
     shutdown_scheduler()
     logger.info("Scheduler has been stopped")
-    
