@@ -76,7 +76,7 @@ def crawl_browsing_infos(request_data: Union[dict, BrowsingInfosRequest]) -> Lis
 
 def crawl_browsing_infos_with_list(requests_list: List[BrowsingInfosRequest]):
     """
-    Process a list of browsing requests and save results to JSON file
+    Process a list of browsing requests and return the results
     """
     logger.info(f"Starting to process {len(requests_list)} browsing requests")
     all_foods = []
@@ -85,7 +85,7 @@ def crawl_browsing_infos_with_list(requests_list: List[BrowsingInfosRequest]):
         try:
             logger.debug(f"Processing request {i+1}/{len(requests_list)}: {req}")
             food_items = crawl_browsing_infos(req)  # giờ trả về list of Food
-            all_foods.extend([f.dict() for f in food_items])  # convert Food -> dict để ghi file
+            all_foods.extend([f.dict() for f in food_items])  # convert Food -> dict
             logger.debug(f"Added {len(food_items)} food items, total items so far: {len(all_foods)}")
 
             # ⬇️ Sleep ngẫu nhiên để tránh bị block
@@ -96,20 +96,8 @@ def crawl_browsing_infos_with_list(requests_list: List[BrowsingInfosRequest]):
             logger.error(f"Error processing request {req}: {str(e)}", exc_info=True)
             continue
 
-    try:
-        filename = f"foody_foods_{int(time.time())}.json"
-        full_path = save_to_json(all_foods, filename)
-        logger.info(f"Successfully saved {len(all_foods)} food items to file: {full_path}")
-
-        return {
-            "result": "success",
-            "total_restaurants": len(all_foods),
-            "filename": filename
-        }
-    except Exception as e:
-        logger.error(f"Error saving results to file: {str(e)}", exc_info=True)
-        return {
-            "result": "error",
-            "message": str(e),
-            "total_restaurants": len(all_foods)
-        }
+    return {
+        "result": "success",
+        "all_foods": all_foods,
+        "total_restaurants": len(all_foods)
+    }

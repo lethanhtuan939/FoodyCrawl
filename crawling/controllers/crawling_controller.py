@@ -5,14 +5,15 @@ from services.location_crawler import crawl_foody_locations
 from services.browsing_ids_crawler import crawl_browsing_ids
 from services.browsing_infos_crawler import crawl_browsing_infos, crawl_browsing_infos_with_list
 from schemas.browsing_info_schema import BrowsingInfosRequest
+from utils.file_handler import save_to_json
 import logging
+import time
 
 # Setup logger for this module
 logger = logging.getLogger(__name__)
 
 # Constants
-MAX_DELIVERY_IDS_PER_CITY = 30  # Maximum number of delivery IDs to process per city
-SAMPLE_LOG_SIZE = 5  # Number of items to log as sample in debug messages
+MAX_DELIVERY_IDS_PER_CITY = 1  # Maximum number of delivery IDs to process per city
 
 # Create router for crawling API
 router = APIRouter(
@@ -86,7 +87,7 @@ def full_crawl():
     """
     try:
         logger.info("Starting full crawl process")
-        city_ids = crawl_foody_locations() 
+        city_ids, locations = crawl_foody_locations() 
         logger.info(f"Found {len(city_ids)} cities")
 
         all_requests = []
@@ -114,15 +115,26 @@ def full_crawl():
         logger.info(f"Total browsing requests to process: {len(all_requests)}")
 
         result = crawl_browsing_infos_with_list(all_requests)  
-        logger.info(f"Full crawl completed successfully. Saved to: {result.get('filename', 'Unknown')}")
+        try:
+            # Lưu vào file JSON
+            filename = f"foody_combined_data_{int(time.time())}.json"
+            combined_data = {
+                "locations": locations,
+                "foods": result["all_foods"]
+            }
+            full_path = save_to_json(combined_data, filename)
+            logger.info(f"Saved combined data to file: {full_path}")
+        except Exception as e:
+            logger.error(f"Error saving data to file: {str(e)}", exc_info=True)
 
         return {
             "status": "success",
             "message": "Full crawl completed successfully",
             "data": {
-                "filename": result["filename"],
+                "filename": filename,
                 "total_cities": len(city_ids),
-                "total_requests": len(all_requests)
+                "total_locations": len(locations),
+                "total_foods": len(result["all_foods"])
             }
         }
     except Exception as e:
