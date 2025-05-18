@@ -1,12 +1,12 @@
 from pydantic import BaseModel
-from typing import List
+from typing import Optional, List
 
 class Location(BaseModel):
     id: int
     city_id: int
-    CountryId: int
-    Name: str
-    CountryName: str
+    country_id: int
+    name: str
+    country_name: str
 
 class Food(BaseModel):
     id: int
@@ -14,7 +14,7 @@ class Food(BaseModel):
     categories: List[str]
     cuisines: List[str]
     address: str
-    rating_avg: float
-    rating_total_review: int
+    rating_avg: Optional[float] = None
+    rating_total_review: Optional[int] = None
     is_open: bool
     city_id: int

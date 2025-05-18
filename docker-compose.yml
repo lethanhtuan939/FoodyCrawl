@@ -1,10 +1,15 @@
+volumes:
+  landing_zone:
 services:
   backend:
     build: ./backend
     ports:
       - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:123456@db:5432/foody
     depends_on:
       - db
+
   crawling:
     build: ./crawling
     volumes:
@@ -16,14 +21,21 @@ services:
     build: ./ingestion
     volumes:
       - ./landing_zone:/app/landing_zone
+    environment:
+      - DATABASE_URL=postgresql://postgres:123456@db:5432/foody
     depends_on:
       - db
+      - crawling
+
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "80:80"
     depends_on:
       - backend
+
   db:
     image: postgres:latest
     environment:

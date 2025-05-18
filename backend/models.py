@@ -4,23 +4,20 @@ from typing import Optional, List
 class Food(BaseModel):
     id: int
     name: str
-    categories: List[str] = Field(default_factory=list)
-    cuisines: List[str] = Field(default_factory=list)
+    categories: str
+    cuisines: str
     address: str
-    rating_avg: float
-    rating_total_review: int
+    rating_avg: Optional[float] = None
+    rating_total_review: Optional[int] = None
     is_open: bool
     city_id: int
-
-    class Config:
-        orm_mode = True
         
 class Location(BaseModel):
     id: int
     city_id: int
-    countryId: int
+    country_id: int
     name: str
-    countryName: str
+    country_name: str
 
     class Config:
         orm_mode = True

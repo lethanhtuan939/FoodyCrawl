@@ -3,8 +3,10 @@ from apscheduler.triggers.cron import CronTrigger
 import logging
 from services.location_crawler import crawl_foody_locations
 from services.browsing_ids_crawler import crawl_browsing_ids
-from services.browsing_infos_crawler import crawl_browsing_infos_with_list
+from services.browsing_infos_crawler import crawl_browsing_infos, crawl_browsing_infos_with_list
 from schemas.browsing_info_schema import BrowsingInfosRequest
+from utils.file_handler import save_to_json
+import time
 
 # Setup logger for this module
 logger = logging.getLogger(__name__)
@@ -13,7 +15,7 @@ logger = logging.getLogger(__name__)
 scheduler = BackgroundScheduler()
 
 # Constants
-MAX_DELIVERY_IDS_PER_CITY = 30  # Maximum number of delivery IDs to process per city
+MAX_DELIVERY_IDS_PER_CITY = 1  # Maximum number of delivery IDs to process per city
 
 def scheduled_full_crawl():
     """
@@ -23,7 +25,7 @@ def scheduled_full_crawl():
         logger.info("Starting scheduled full crawl...")
         
         # Crawl locations
-        city_ids = crawl_foody_locations()
+        city_ids, locations = crawl_foody_locations()
         logger.info(f"Found {len(city_ids)} cities")
 
         all_requests = []
@@ -54,6 +56,19 @@ def scheduled_full_crawl():
         # Crawl detailed information
         if all_requests:
             result = crawl_browsing_infos_with_list(all_requests)
+            
+            # Save combined data to a single file
+            try:
+                filename = f"foody_combined_data_{int(time.time())}.json"
+                combined_data = {
+                    "locations": locations,
+                    "foods": result["all_foods"]
+                }
+                full_path = save_to_json(combined_data, filename)
+                logger.info(f"Saved combined data to file: {full_path}")
+            except Exception as e:
+                logger.error(f"Error saving data to file: {str(e)}", exc_info=True)
+            
             logger.info(f"Scheduled full crawl completed successfully: {result.get('total_restaurants', 0)} restaurants found")
         else:
             logger.warning("No requests to process, skipping crawl_browsing_infos")
@@ -68,7 +83,7 @@ def start_scheduler():
     # Configure job to run at 1 AM every day (or configured time)
     scheduler.add_job(
         scheduled_full_crawl,
-        CronTrigger(hour=0, minute=49),  # Set scheduled time
+        CronTrigger(hour=1, minute=0),  # Set scheduled time
         id="daily_full_crawl",
         name="Daily full crawl at 1 AM",
         replace_existing=True

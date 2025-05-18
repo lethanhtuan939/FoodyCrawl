@@ -56,19 +56,11 @@ def crawl_foody_locations() -> list[int]:
         ]
         logger.debug(f"Converted {len(locations)} locations to schema format")
 
-        try:
-            # Lưu vào file JSON
-            filename = f"foody_locations_{int(time.time())}.json"
-            full_path = save_to_json(locations, filename)
-            logger.info(f"Saved locations list to file: {full_path}")
-        except Exception as e:
-            logger.error(f"Error saving locations to file: {str(e)}", exc_info=True)
-
         # Trả về danh sách city_id
         city_ids = [loc["city_id"] for loc in locations]
         logger.info(f"Returning {len(city_ids)} city IDs")
         
-        return city_ids
+        return city_ids, locations
     except requests.exceptions.RequestException as e:
         logger.error(f"Error calling locations API: {str(e)}", exc_info=True)
         return []

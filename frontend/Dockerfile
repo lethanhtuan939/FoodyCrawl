@@ -16,7 +16,7 @@ FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Sao chép file cấu hình Nginx từ thư mục nginx
-COPY ../nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Mở cổng 80
 EXPOSE 80
