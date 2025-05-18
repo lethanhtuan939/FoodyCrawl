@@ -1,0 +1,40 @@
+{
+  "locations": [
+    {
+      "city_id": 217,
+      "country_id": 86,
+      "name": "TP. HCM",
+      "country_name": "Vietnam"
+    },
+    {
+      "city_id": 285,
+      "country_id": 76,
+      "name": "Bangkok",
+      "country_name": "Thailand"
+    }
+  ],
+  "foods": [
+    {
+      "name": "Udon - Quán Mì Nhật",
+      "categories": "Restaurant",
+      "cuisines": "Japanese, Asian",
+      "address": "170 Bàu Cát, P. 14, Tân Bình, TP. HCM",
+      "rating_avg": 4.7,
+      "rating_total_review": 1000,
+      "image_url": "https://mms.img.susercontent.com/vn-11134513-7r98o-lsu30bh5eftl0a@resize_ss240x240!@crop_w240_h240_cT",
+      "is_open": true,
+      "city_id": 217
+    },
+    {
+      "name": "Brohotdog - Hotdog & Drink - Phố Đặng Văn Ngữ",
+      "categories": "Street food",
+      "cuisines": "International",
+      "address": "103 D2 Phố Đặng Văn Ngữ, P. Trung Tự, Đống Đa, Hà Nội",
+      "rating_avg": 4.8,
+      "rating_total_review": 1000,
+      "image_url": "https://mms.img.susercontent.com/vn-11134513-7r98o-lsu1te4eu7r87a@resize_ss240x240!@crop_w240_h240_cT",
+      "is_open": true,
+      "city_id": 218
+    }
+  ]
+}

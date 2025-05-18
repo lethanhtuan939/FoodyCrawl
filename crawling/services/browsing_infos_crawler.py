@@ -53,6 +53,14 @@ def crawl_browsing_infos(request_data: Union[dict, BrowsingInfosRequest]) -> Lis
         logger.info(f"Found {len(delivery_infos)} restaurant items in response")
 
         for item in delivery_infos:
+            photos = item.get("photos", [])
+            image_url = ""
+
+            # Chỉ lấy ảnh có width = 240 và height = 240
+            for photo in photos:
+                if photo.get("width") == 240 and photo.get("height") == 240:
+                    image_url = photo.get("value", "")
+                    break  # Dừng vòng lặp ngay khi tìm thấy ảnh phù hợp
             food = Food(
                 name=item.get("name", ""),
                 categories=", ".join(item.get("categories", [])),
@@ -60,6 +68,7 @@ def crawl_browsing_infos(request_data: Union[dict, BrowsingInfosRequest]) -> Lis
                 address=item.get("address", ""),
                 rating_avg=item.get("rating", {}).get("avg"),
                 rating_total_review=item.get("rating", {}).get("total_review"),
+                image_url=image_url,
                 is_open=item.get("is_open", True),
                 city_id=item.get("city_id", 0)
             )

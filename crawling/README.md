@@ -32,6 +32,44 @@ Dữ liệu được lưu trong file JSON với cấu trúc:
 }
 ```
 
+## Bắt đầu nhanh
+
+### Cài đặt môi trường
+1. Clone repository về máy:
+```bash
+git clone <repository_url>
+cd FoodyCrawl/crawling
+```
+
+2. Tạo và kích hoạt môi trường ảo (khuyến nghị):
+```bash
+# Windows
+python -m venv venv
+venv\Scripts\activate
+
+# Linux/Mac
+python -m venv venv
+source venv/bin/activate
+```
+
+3. Cài đặt dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Tạo thư mục landing_zone để lưu dữ liệu:
+```bash
+mkdir landing_zone
+```
+
+### Chạy service
+```bash
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Truy cập Swagger UI
+Mở trình duyệt và truy cập: http://localhost:8000/docs
+
 ## API Endpoints
 
 ### 1. Crawl Locations
@@ -97,6 +135,11 @@ scheduler.add_job(
 - `LANDING_ZONE_PATH`: Thư mục lưu trữ file JSON kết quả
   - Trong Docker: `/app/landing_zone`
   - Trong môi trường development: `[project_root]/landing_zone`
+
+### Kiểm soát số lượng items crawl
+- Thay đổi giá trị `MAX_DELIVERY_IDS_PER_CITY` trong file `controllers/crawling_controller.py` để điều chỉnh số lượng nhà hàng được crawl cho mỗi thành phố
+- Giá trị mặc định là 1 (phù hợp cho việc testing)
+- Tăng giá trị này để crawl nhiều dữ liệu hơn trong production
 
 ## Cài đặt và Chạy
 
