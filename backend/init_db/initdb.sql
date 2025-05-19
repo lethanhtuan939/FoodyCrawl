@@ -1,7 +1,3 @@
-CREATE DATABASE IF NOT EXISTS foody;
-
-USE foody;
-
 CREATE TABLE IF NOT EXISTS locations (
     id SERIAL PRIMARY KEY,
     city_id INTEGER UNIQUE NOT NULL,
@@ -18,6 +14,7 @@ CREATE TABLE IF NOT EXISTS foods (
     address VARCHAR(255) NOT NULL,
     rating_avg FLOAT NOT NULL,
     rating_total_review INTEGER NOT NULL,
+    image_url TEXT NOT NULL,
     is_open BOOLEAN NOT NULL,
     city_id INTEGER,
     FOREIGN KEY (city_id) REFERENCES locations(city_id) ON DELETE SET NULL

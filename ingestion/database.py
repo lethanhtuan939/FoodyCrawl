@@ -46,6 +46,7 @@ class FoodDB(Base):
     address = Column(String)
     rating_avg = Column(Float)
     rating_total_review = Column(Integer)
+    image_url = Column(String)
     is_open = Column(Boolean)
     city_id = Column(Integer, ForeignKey("locations.city_id"), nullable=True)
     

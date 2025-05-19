@@ -72,6 +72,7 @@ async def search_foods(
                 "address": food.address,
                 "rating_avg": food.rating_avg,
                 "rating_total_review": food.rating_total_review,
+                "image_url": food.image_url,
                 "is_open": food.is_open,
                 "city_id": food.city_id
             }

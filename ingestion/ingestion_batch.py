@@ -27,10 +27,8 @@ def ingest_json_data(file_path):
 
         db = SessionLocal()
         try:
-            # Chèn Locations
             for location_data in locations:
                 try:
-                    # Đổi tên trường và xử lý id
                     location_data = {
                         "id": location_data.get("id", int(uuid.uuid4().int & (1<<31)-1)) if location_data.get("id") is None else location_data.get("id"),
                         "city_id": location_data.get("city_id", 0),
@@ -61,11 +59,9 @@ def ingest_json_data(file_path):
 
             for index, food_data in enumerate(foods):
                 try:
-                    # Tạo ID nếu không có
                     if "id" not in food_data or food_data["id"] is None:
                         food_data["id"] = int(uuid.uuid4().int & (1<<31)-1)
 
-                    # Đảm bảo categories và cuisines là str
                     if isinstance(food_data.get("categories"), str):
                         food_data["categories"] = [food_data["categories"]] if food_data["categories"] else []
                     elif not isinstance(food_data.get("categories"), list):
@@ -76,30 +72,28 @@ def ingest_json_data(file_path):
                     elif not isinstance(food_data.get("cuisines"), list):
                         food_data["cuisines"] = []
 
-                    # Đảm bảo các trường bắt buộc
                     food_data["name"] = food_data.get("name", "")
                     food_data["address"] = food_data.get("address", "")
+                    food_data["image_url"] = food_data.get("image_url", "")
                     food_data["rating_avg"] = float(food_data.get("rating_avg", 0.0))
                     food_data["rating_total_review"] = int(food_data.get("rating_total_review", 0))
                     food_data["is_open"] = bool(food_data.get("is_open", False))
                     food_data["city_id"] = int(food_data.get("city_id", 0))
 
-                    # Tạo đối tượng Food từ Pydantic
                     food = Food(**food_data)
 
-                    # Kiểm tra city_id có tồn tại không
                     existing_location = db.query(LocationDB).filter(LocationDB.city_id == food.city_id).first()
                     if not existing_location:
                         print(f"City ID {food.city_id} not found in locations table, skipping food item: {food.name}")
                         continue
 
-                    # Lưu vào database
                     food_db = FoodDB(
                         id=food.id,
                         name=food.name,
                         categories=food.categories,
                         cuisines=food.cuisines,
                         address=food.address,
+                        image_url=food.image_url,
                         rating_avg=food.rating_avg,
                         rating_total_review=food.rating_total_review,
                         is_open=food.is_open,
@@ -120,7 +114,6 @@ def ingest_json_data(file_path):
                     continue
 
             print(f"Successfully ingested data from {file_path} into database at {datetime.now()}")
-
         finally:
             db.close()
 
