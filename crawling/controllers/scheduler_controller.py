@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 scheduler = BackgroundScheduler()
 
 # Constants
-MAX_DELIVERY_IDS_PER_CITY = 50  # Maximum number of delivery IDs to process per city
+MAX_DELIVERY_IDS_PER_CITY = 30  # Maximum number of delivery IDs to process per city
 
 def scheduled_full_crawl():
     """
