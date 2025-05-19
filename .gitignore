@@ -30,5 +30,4 @@ landing_zone/
 
 */node_modules/
 
-# Data files
-databases/
+database/

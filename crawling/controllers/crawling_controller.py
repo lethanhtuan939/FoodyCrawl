@@ -13,7 +13,7 @@ import time
 logger = logging.getLogger(__name__)
 
 # Constants
-MAX_DELIVERY_IDS_PER_CITY = 1  # Maximum number of delivery IDs to process per city
+MAX_DELIVERY_IDS_PER_CITY = 50  # Maximum number of delivery IDs to process per city
 
 # Create router for crawling API
 router = APIRouter(
