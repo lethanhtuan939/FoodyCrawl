@@ -29,3 +29,6 @@ landing_zone/
 *.json
 
 */node_modules/
+
+# Data files
+databases/
