@@ -4,8 +4,18 @@ from typing import Optional
 from database import get_db, init_db
 from sqlalchemy.orm import Session
 from database import LocationDB, FoodDB
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 init_db()
 
