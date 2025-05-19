@@ -1,7 +1,3 @@
--- CREATE DATABASE IF NOT EXISTS foody;
-
--- USE foody;
-
 CREATE TABLE IF NOT EXISTS locations (
     id SERIAL PRIMARY KEY,
     city_id INTEGER UNIQUE NOT NULL,

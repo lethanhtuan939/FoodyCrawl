@@ -1,41 +1,12 @@
 volumes:
   landing_zone:
+  postgres_data:
+
+networks:
+  foody_network:
+    driver: bridge
+
 services:
-  backend:
-    build: ./backend
-    ports:
-      - "8000:8000"
-    environment:
-      - DATABASE_URL=postgresql://postgres:123456@db:5432/foody
-    depends_on:
-      - db
-
-  crawling:
-    build: ./crawling
-    volumes:
-      - ./landing_zone:/app/landing_zone
-    ports:
-      - "8001:8000"
-    restart: unless-stopped
-  ingestion:
-    build: ./ingestion
-    volumes:
-      - ./landing_zone:/app/landing_zone
-    environment:
-      - DATABASE_URL=postgresql://postgres:123456@db:5432/foody
-    depends_on:
-      - db
-      - crawling
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
-
   db:
     image: postgres:latest
     environment:
@@ -44,6 +15,76 @@ services:
       POSTGRES_DB: foody
     volumes:
       - ./backend/init_db:/docker-entrypoint-initdb.d
-      - ./database/data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - foody_network
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:123456@db:5432/foody
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - foody_network
+
+  crawling:
+    build: ./crawling
+    volumes:
+      - landing_zone:/app/landing_zone
+    ports:
+      - "8001:8000"
+    restart: unless-stopped
+    networks:
+      - foody_network
+
+  ingestion:
+    build: ./ingestion
+    volumes:
+      - landing_zone:/app/landing_zone
+    environment:
+      - DATABASE_URL=postgresql://postgres:123456@db:5432/foody
+    depends_on:
+      db:
+        condition: service_healthy
+      crawling:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - foody_network
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - foody_network
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./frontend/dist:/usr/share/nginx/html
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - crawling
+    restart: unless-stopped
+    networks:
+      - foody_network
