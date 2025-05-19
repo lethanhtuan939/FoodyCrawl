@@ -6,8 +6,13 @@ from sqlalchemy.orm import Session
 from database import LocationDB, FoodDB
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
-
+app = FastAPI(
+    title="FoodyCrawl Rest API",
+    description="API for crawling food data from Foody.vn",
+    docs_url="/docs",
+    openapi_url="/openapi.json",
+    redoc_url="/redoc",
+    root_path="/api/backend")
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,

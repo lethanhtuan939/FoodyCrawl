@@ -9,7 +9,12 @@ from utils.logging_utils import setup_logging
 logger = setup_logging(logging.INFO)
 
 # Tạo FastAPI app
-app = FastAPI(title="FoodyCrawl API")
+app = FastAPI(
+    title="FoodyCrawl API",
+    docs_url="/docs",
+    openapi_url="/openapi.json",
+    redoc_url="/redoc",
+    root_path="/api/crawling")
 
 # Cấu hình CORS
 app.add_middleware(

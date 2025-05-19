@@ -64,7 +64,18 @@ services:
     restart: unless-stopped
     networks:
       - foody_network
-
+  frontend:
+    build: ./frontend
+    command: ["npm", "run", "build"]
+    env_file:
+      - ./frontend/.env 
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost/api/backend}
+      VITE_API_CRAWL_URL: ${VITE_API_CRAWL_URL:-http://localhost/api/crawling}
+    volumes:
+      - ./frontend/dist:/app/dist
+    networks:
+      - foody_network
   nginx:
     image: nginx:alpine
     volumes:
@@ -75,6 +86,7 @@ services:
     depends_on:
       - backend
       - crawling
+      - frontend
     restart: unless-stopped
     networks:
       - foody_network

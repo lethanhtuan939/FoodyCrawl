@@ -1,7 +1,7 @@
 <script setup>
-	import { ref, watch } from "vue";
+	import { ref, watch, computed } from "vue";
 
-	const BASE_URL = "http://localhost/api/backend";
+	const BASE_URL = import.meta.env.VITE_API_URL;
 
 	const props = defineProps({
 		selectedLocation: {
@@ -49,6 +49,33 @@
 	);
 
 	watch(currentPage, fetchFoods);
+	const pagesToShow = computed(() => {
+		const result = [];
+		const totalPagesValue = totalPages.value;
+		const currentPageValue = currentPage.value;
+		result.push(1);
+		if (currentPageValue > 3) {
+			result.push("...");
+		}
+		if (currentPageValue > 2) {
+			result.push(currentPageValue - 1);
+		}
+		if (currentPageValue !== 1 && currentPageValue !== totalPagesValue) {
+			result.push(currentPageValue);
+		}
+
+		if (currentPageValue < totalPagesValue - 1) {
+			result.push(currentPageValue + 1);
+		}
+		if (currentPageValue < totalPagesValue - 2) {
+			result.push("...");
+		}
+		if (totalPagesValue > 1) {
+			result.push(totalPagesValue);
+		}
+
+		return result;
+	});
 </script>
 
 <template>
@@ -64,29 +91,54 @@
 					/>
 					<div class="card-body">
 						<h3>{{ food.name }}</h3>
-            <span class="address">{{ food.address }}</span>
+						<span class="address">{{ food.address }}</span>
 						<div class="categories">
 							<span v-for="category in food.categories" :key="category" class="tag">
 								{{ category }}
 							</span>
-              <span v-for="cuisine in food.cuisines" :key="cuisine" class="tag cuisine">
-                {{ cuisine }}
-              </span>
+							<span v-for="cuisine in food.cuisines" :key="cuisine" class="tag cuisine">
+								{{ cuisine }}
+							</span>
 						</div>
 						<div class="rating">
 							<span class="stars">★ {{ food.rating_avg }}</span>
-							<span class="reviews">({{ food.rating_total_review }} reviews)</span>
+							<span class="reviews">({{ food.rating_total_review }} đánh giá)</span>
 						</div>
 						<div class="status" :class="{ open: food.is_open }">
-							{{ food.is_open ? "Open" : "Closed" }}
+							{{ food.is_open ? "Mở cửa" : "Đóng cửa" }}
 						</div>
 					</div>
 				</div>
 			</div>
 			<div class="pagination" v-if="totalPages > 0">
-				<button :disabled="currentPage === 1" @click="currentPage--">Trước</button>
-				<span>{{ currentPage }}/ {{ totalPages }}</span>
-				<button :disabled="currentPage === totalPages" @click="currentPage++">Sau</button>
+				<button class="navigate" :disabled="currentPage === 1" @click="currentPage = 1">Đầu</button>
+				<button class="navigate" :disabled="currentPage === 1" @click="currentPage--">Trước</button>
+
+				<template v-for="(page, index) in pagesToShow" :key="index">
+					<!-- Nếu là số trang thì hiển thị nút có thể nhấp -->
+					<button
+						v-if="page !== '...'"
+						class="page"
+						@click="currentPage = page"
+						:class="{ active: currentPage === page }"
+					>
+						{{ page }}
+					</button>
+
+					<!-- Nếu là dấu ... thì chỉ hiển thị text -->
+					<span v-else class="ellipsis">{{ page }}</span>
+				</template>
+
+				<button class="navigate" :disabled="currentPage === totalPages" @click="currentPage++">
+					Sau
+				</button>
+				<button
+					class="navigate"
+					:disabled="currentPage === totalPages"
+					@click="currentPage = totalPages"
+				>
+					Cuối
+				</button>
 			</div>
 		</template>
 	</div>
@@ -119,12 +171,13 @@
 		position: relative;
 		overflow: hidden;
 	}
+
 	.card-body {
 		padding: 1.5rem;
 	}
 
 	.food-card h3 {
-    min-height: 56px;
+		min-height: 56px;
 		margin: 0 0 1rem;
 		color: #333;
 		overflow: hidden;
@@ -133,12 +186,14 @@
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
 	}
+
 	img {
 		width: 100%;
 		height: auto;
 		border-radius: 8px 8px 0 0;
 		object-fit: cover;
 	}
+
 	.tag {
 		display: inline-block;
 		padding: 0.2rem 0.5rem;
@@ -200,7 +255,7 @@
 		gap: 1rem;
 	}
 
-	.pagination button {
+	.pagination .navigate {
 		padding: 0.5rem 1rem;
 		border: none;
 		background: #ff5a5f;
@@ -209,8 +264,23 @@
 		cursor: pointer;
 	}
 
-	.pagination button:disabled {
+	.pagination .navigate:disabled {
 		background: #ddd;
 		cursor: not-allowed;
+	}
+	.pagination .page {
+		font-weight: bold;
+		border: none;
+		border-radius: 4px;
+		padding: 4px 10px;
+		border-radius: 1000px;
+		cursor: pointer;
+	}
+	.pagination .page:hover {
+		background-color: #DDDDDD;
+	}
+	.pagination .page.active {
+		background-color: #ff5a5f;
+		color: white;
 	}
 </style>

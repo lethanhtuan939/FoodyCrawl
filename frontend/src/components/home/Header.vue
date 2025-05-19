@@ -24,7 +24,7 @@ function handleSearch(e) {
 
 async function fetchLocations() {
   try {
-    const response = await fetch('http://localhost:8000/locations')
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/locations`)
     locations.value = await response.json()
   } catch (error) {
     console.error('Error fetching locations:', error)
