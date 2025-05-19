@@ -1,6 +1,8 @@
 <script setup>
 	import { ref, watch } from "vue";
 
+	const BASE_URL = "http://localhost/api/backend";
+
 	const props = defineProps({
 		selectedLocation: {
 			type: Object,
@@ -20,7 +22,7 @@
 		isLoading.value = true;
 		try {
 			const response = await fetch(
-				`http://localhost:8000/foods?page=${currentPage.value}${
+				`${BASE_URL}/foods?page=${currentPage.value}${
 					props.searchQuery.trim() ? `&query=${props.searchQuery.trim()}` : ""
 				}&page_size=12${
 					props.selectedLocation?.city_id ? `&city_id=${props.selectedLocation.city_id}` : ""
